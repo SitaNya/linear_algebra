@@ -50,8 +50,9 @@ class matrix(object):
         temp = ['Len is: {},col_num is: {}'.format(m_len, m_dimensiou)]
         return "\nMatrix size is:\n" + str(temp)
 
-    def matxRound(self,decPts=4):
-        for i,v in enumerate(self.Vector):
-            for n,m in enumerate(v):
-                v[i]=(n,round(m,decPts))
-            print v
+    def matxRound(self, decPts=4):
+        for i, v in enumerate(self.Vector):
+            list = []
+            for n, m in enumerate(v):
+                list.append(round(m, decPts))
+            self[i] = Vector(list)

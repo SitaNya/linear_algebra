@@ -162,10 +162,6 @@ class Vector(object):
     def __getitem__(self, index):
         return self.coordinates[index]
 
-    def __setitem__(self, i, x):
-        self.coordinates[i]=x
-
-
     # 这里感谢mentor帮助，我先前发现重复运行代码存在不同的回显百思不得其解，询问后才了解到这里的基础代码应补充一行idx=0
     def __iter__(self):
         self.idx = 0
