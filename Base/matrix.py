@@ -2,6 +2,8 @@
 import traceback
 from decimal import getcontext
 
+from copy import deepcopy
+
 from Vector import Vector
 
 getcontext().prec = 30
@@ -51,8 +53,28 @@ class matrix(object):
         return "\nMatrix size is:\n" + str(temp)
 
     def matxRound(self, decPts=4):
-        for i, v in enumerate(self.Vector):
+        for Vector_index, vector in enumerate(self.Vector):
             list = []
-            for n, m in enumerate(v):
-                list.append(round(m, decPts))
-            self[i] = Vector(list)
+            for number_index, number in enumerate(vector):
+                list.append(round(number, decPts))
+            self[Vector_index] = Vector(list)
+
+    def transpose(self):
+        system = deepcopy(self)
+        Vector_index = 0
+        for number_index in range(0, self.dimension):
+            list = []
+            for Vector_number, vector in enumerate(self.Vector):
+                list.append(vector[number_index])
+            system[Vector_index] = Vector(list)
+            Vector_index += 1
+        return system
+
+    def matxMultiply(self, B):
+        system = deepcopy(self)
+        for Vector_index, vector in enumerate(self.Vector):
+            list = []
+            for number_index, number in enumerate(vector):
+                list.append(number * B)
+            system[Vector_index] = Vector(list)
+        return system

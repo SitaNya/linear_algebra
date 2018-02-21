@@ -20,3 +20,8 @@ print m.shape()
 
 m.matxRound()
 print "\n四舍五入后： " + str(m)
+
+
+print "\n转置后："+str(m.transpose())
+
+print "\n乘以2后："+str(m.matxMultiply(2))
