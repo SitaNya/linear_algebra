@@ -1,8 +1,6 @@
 # coding=utf-8
-import traceback
-from decimal import getcontext
-
 from copy import deepcopy
+from decimal import getcontext
 
 from Vector import Vector
 
@@ -14,13 +12,13 @@ class matrix(object):
     NO_SOLUTIONS_MSG = 'No solutions'
     INF_SOLUTIONS_MSG = 'Infinitely many solutions'
 
-    def __init__(self, Vector):
+    def __init__(self, vector):
         try:
-            d = Vector[0].dimension
-            for v in Vector:
+            d = vector[0].dimension
+            for v in vector:
                 assert v.dimension == d
 
-            self.Vector = Vector
+            self.Vector = vector
             self.dimension = d
 
         except AssertionError:
@@ -52,29 +50,29 @@ class matrix(object):
         temp = ['Len is: {},col_num is: {}'.format(m_len, m_dimensiou)]
         return "\nMatrix size is:\n" + str(temp)
 
-    def matxRound(self, decPts=4):
+    def matxround(self, dec_pts=4):
         for Vector_index, vector in enumerate(self.Vector):
-            list = []
+            temp_vector = []
             for number_index, number in enumerate(vector):
-                list.append(round(number, decPts))
-            self[Vector_index] = Vector(list)
+                temp_vector.append(round(number, dec_pts))
+            self[Vector_index] = Vector(temp_vector)
 
     def transpose(self):
         system = deepcopy(self)
-        Vector_index = 0
+        vector_index = 0
         for number_index in range(0, self.dimension):
-            list = []
+            temp_vector = []
             for Vector_number, vector in enumerate(self.Vector):
-                list.append(vector[number_index])
-            system[Vector_index] = Vector(list)
-            Vector_index += 1
+                temp_vector.append(vector[number_index])
+            system[vector_index] = Vector(temp_vector)
+            vector_index += 1
         return system
 
-    def matxMultiply(self, B):
+    def matxmultiply(self, b):
         system = deepcopy(self)
         for Vector_index, vector in enumerate(self.Vector):
-            list = []
+            temp_vector = []
             for number_index, number in enumerate(vector):
-                list.append(number * B)
-            system[Vector_index] = Vector(list)
+                temp_vector.append(number * b)
+            system[Vector_index] = Vector(temp_vector)
         return system

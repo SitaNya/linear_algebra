@@ -1,6 +1,7 @@
 # coding=utf-8
-from decimal import Decimal, getcontext
 import traceback
+from decimal import Decimal, getcontext
+
 from Vector import Vector
 
 getcontext().prec = 30
@@ -139,7 +140,7 @@ class Plane(object):
                 return basepoint_difference.is_orthogonal_to(n)
 
 
-
 class MyDecimal(Decimal):
+    # noinspection PyTypeChecker
     def is_near_zero(self, eps=1e-10):
         return abs(self) < eps

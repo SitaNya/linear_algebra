@@ -18,10 +18,9 @@ print m
 print m.shape()
 # 返回行列
 
-m.matxRound()
+m.matxround()
 print "\n四舍五入后： " + str(m)
 
+print "\n转置后：" + str(m.transpose())
 
-print "\n转置后："+str(m.transpose())
-
-print "\n乘以2后："+str(m.matxMultiply(2))
+print "\n乘以2后：" + str(m.matxmultiply(2))

@@ -9,6 +9,7 @@ class Line(object):
     NO_NONZERO_ELTS_FOUND_MSG = 'No nonzero elements found'
 
     def __init__(self, normal_vector=None, constant_term=None):
+        self.basepoint = None
         self.dimension = 2
 
         if not normal_vector:
@@ -29,17 +30,17 @@ class Line(object):
             basepoint_coords = ['0'] * self.dimension
 
             initial_index = Line.first_nonzero_index(n)
-            list = []
+            temp_coefficient = []
             for x in n.coordinates:
-                list.append(x)
-            initial_coefficient = list[initial_index]
+                temp_coefficient.append(x)
+            initial_coefficient = temp_coefficient[initial_index]
 
             basepoint_coords[initial_index] = c / initial_coefficient
             self.basepoint = Vector(basepoint_coords)
 
         except Exception as e:
             if str(e) == Line.NO_NONZERO_ELTS_FOUND_MSG:
-                self.basepoint = None
+                pass
             else:
                 raise e
 
@@ -52,20 +53,20 @@ class Line(object):
             if coefficient % 1 == 0:
                 coefficient = int(coefficient)
 
-            output = ''
+            print_output = ''
 
             if coefficient < 0:
-                output += '-'
+                print_output += '-'
             if coefficient > 0 and not is_initial_term:
-                output += '+'
+                print_output += '+'
 
             if not is_initial_term:
-                output += ' '
+                print_output += ' '
 
             if abs(coefficient) != 1:
-                output += '{}'.format(abs(coefficient))
+                print_output += '{}'.format(abs(coefficient))
 
-            return output
+            return print_output
 
         n = self.normal_vector
 
@@ -113,13 +114,13 @@ class Line(object):
 
     def intersection_with(self, ell):
         try:
-            A, B = self.normal_vector.coordinates
-            C, D = ell.normal_vector.coordinates
+            a, b = self.normal_vector.coordinates
+            c, d = ell.normal_vector.coordinates
             k1 = self.constant_term
             k2 = ell.constant_term
-            x_numerator = D * k1 - B * k2
-            y_numerator = -C * k1 + A * k2
-            one_over_denom = Decimal('1') / (A * D - B * C)
+            x_numerator = d * k1 - b * k2
+            y_numerator = -c * k1 + a * k2
+            one_over_denom = Decimal('1') / (a * d - b * c)
 
             return Vector([x_numerator, y_numerator]).times_scaler(one_over_denom)
 
@@ -128,8 +129,6 @@ class Line(object):
                 return self
             else:
                 return None
-
-
 
 
 class MyDecimal(Decimal):

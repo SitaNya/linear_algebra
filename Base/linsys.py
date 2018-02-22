@@ -47,7 +47,6 @@ class LinearSystem(object):
 
     def indices_of_first_nonzero_terms_in_each_row(self):
         num_equations = len(self)
-        num_variables = self.dimension
 
         indices = [-1] * num_equations
 
@@ -153,7 +152,7 @@ class LinearSystem(object):
             # return self.do_gaussian_elimination_and_extract_solution()
             return self.do_gaussian_elimination_and_parametrize_solution()
         except Exception as e:
-            if (str(e) == self.NO_SOLUTIONS_MSG):
+            if str(e) == self.NO_SOLUTIONS_MSG:
                 return str(e)
             else:
                 raise e
@@ -242,4 +241,3 @@ p2 = Plane(normal_vector=Vector(['-0.138', '-0.138', '0.244']), constant_term='0
 s = LinearSystem([p1, p2])
 
 print s.compute_solution()
-
