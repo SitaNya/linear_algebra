@@ -13,6 +13,7 @@ getcontext().prec = 30
 class LinearSystem(object):
     ALL_PLANES_MUST_BE_IN_SAME_DIM_MSG = 'All planes in the system should live in the same dimension'
     NO_SOLUTIONS_MSG = 'No solutions'
+
     INF_SOLUTIONS_MSG = 'Infinitely many solutions'
 
     def __init__(self, planes):
@@ -230,14 +231,51 @@ class LinearSystem(object):
         if num_pivots < num_variables:
             raise Exception(self.INF_SOLUTIONS_MSG)
 
+    @staticmethod
+    def augmentMatrix(A, b):
+        A_and_b_MUST_BE_HIVE_SAME_ROW = 'A and b 必须有相同行数'
+        A_copy = deepcopy(A)
+        augmentMatrix_list = []
+        try:
+            if A.__len__() == b.__len__():
+                raise Exception
+            for v, r in zip(A_copy, b):
+                v.append(r[0])
+                augmentMatrix_list.append(v)
+            return augmentMatrix_list
+        except Exception:
+            raise Exception(A_and_b_MUST_BE_HIVE_SAME_ROW)
+
+    @staticmethod
+    def swapRows(M, r1, r2):
+        cache = M[r1]
+        M[r1] = M[r2]
+        M[r2] = cache
+        return M
+
+    @staticmethod
+    def scaleRow(M, r, scale):
+        try:
+            if scale == 0:
+                raise ValueError(1)
+            for col_num in range(0, M[r].__len__()):
+                M[r][col_num] = M[r][col_num] * scale
+            return M
+        except ValueError as e:
+            raise e
+
+    @staticmethod
+    def addScaledRow(M, r1, r2, scale):
+        try:
+            if scale == 0:
+                raise ValueError(1)
+            for col_num in range(0, M[r1].__len__()):
+                M[r1][col_num] = M[r1][col_num] + scale * M[r2][col_num]
+            return M
+        except ValueError as e:
+            raise e
+
 
 class MyDecimal(Decimal):
     def is_near_zero(self, eps=1e-10):
         return abs(self) < eps
-
-
-p1 = Plane(normal_vector=Vector(['0.786', '0.786', '0.588']), constant_term='-0.714')
-p2 = Plane(normal_vector=Vector(['-0.138', '-0.138', '0.244']), constant_term='0.319')
-s = LinearSystem([p1, p2])
-
-print s.compute_solution()

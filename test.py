@@ -2,7 +2,7 @@
 # import unittest
 import unittest
 from decimal import *
-from Base.Vector import Vector as ve
+from Base.linsys import LinearSystem as li
 from Base.matrix import matrix as ma
 import numpy as np
 
@@ -49,7 +49,6 @@ class LinearRegressionTestCase(unittest.TestCase):
             self.assertEqual(t.shape, (c, r), "Expected shape{}, but got shape{}".format((c, r), t.shape))
             self.assertTrue((matrix.T == t).all(), 'Wrong answer')
 
-
     def test_matxMultiply(self):
 
         for _ in range(100):
@@ -57,7 +56,6 @@ class LinearRegressionTestCase(unittest.TestCase):
             mat1 = np.random.randint(low=-10, high=10, size=(r, d))
             mat2 = np.random.randint(low=-5, high=5, size=(d, c))
             dotProduct = np.dot(mat1, mat2)
-
 
             dp = np.array(ma.matxMultiply(mat1.tolist(), mat2.tolist()))
             self.assertEqual(dotProduct.shape, dp.shape,
@@ -72,70 +70,63 @@ class LinearRegressionTestCase(unittest.TestCase):
         with self.assertRaises(ValueError, msg="Matrix A\'s column number doesn\'t equal to Matrix b\'s row number"):
             ma.matxMultiply(mat1.tolist(), mat3.tolist())
 
-            # def test_augmentMatrix(self):
-            #
-            #     for _ in range(50):
-            #         r, c = np.random.randint(low=1, high=25, size=2)
-            #         A = np.random.randint(low=-10, high=10, size=(r, c))
-            #         b = np.random.randint(low=-10, high=10, size=(r, 1))
-            #         Amat = A.tolist()
-            #         bmat = b.tolist()
-            #
-            #         Ab = np.array(augmentMatrix(Amat, bmat))
-            #         ab = np.hstack((A, b))
-            #
-            #         self.assertTrue(A.tolist() == Amat, "Matrix A shouldn't be modified")
-            #         self.assertEqual(Ab.shape, ab.shape,
-            #                          'Wrong answer, expected shape{}, but got shape{}'.format(ab.shape, Ab.shape))
-            #         self.assertTrue((Ab == ab).all(), 'Wrong answer')
-            #
-            # def test_swapRows(self):
-            #     for _ in range(10):
-            #         r, c = np.random.randint(low=1, high=25, size=2)
-            #         matrix = np.random.random((r, c))
-            #
-            #         mat = matrix.tolist()
-            #
-            #         r1, r2 = np.random.randint(0, r, size=2)
-            #         swapRows(mat, r1, r2)
-            #
-            #         matrix[[r1, r2]] = matrix[[r2, r1]]
-            #
-            #         self.assertTrue((matrix == np.array(mat)).all(), 'Wrong answer')
-            #
-            # def test_scaleRow(self):
-            #
-            #     for _ in range(10):
-            #         r, c = np.random.randint(low=1, high=25, size=2)
-            #         matrix = np.random.random((r, c))
-            #
-            #         mat = matrix.tolist()
-            #
-            #         rr = np.random.randint(0, r)
-            #         with self.assertRaises(ValueError):
-            #             scaleRow(mat, rr, 0)
-            #
-            #         scale = np.random.randint(low=1, high=10)
-            #         scaleRow(mat, rr, scale)
-            #         matrix[rr] *= scale
-            #
-            #         self.assertTrue((matrix == np.array(mat)).all(), 'Wrong answer')
-            #
-            # def test_addScaledRow(self):
-            #
-            #     for _ in range(10):
-            #         r, c = np.random.randint(low=1, high=25, size=2)
-            #         matrix = np.random.random((r, c))
-            #
-            #         mat = matrix.tolist()
-            #
-            #         r1, r2 = np.random.randint(0, r, size=2)
-            #
-            #         scale = np.random.randint(low=1, high=10)
-            #         addScaledRow(mat, r1, r2, scale)
-            #         matrix[r1] += scale * matrix[r2]
-            #
-            #         self.assertTrue((matrix == np.array(mat)).all(), 'Wrong answer')
+    def test_augmentMatrix(self):
+        for _ in range(50):
+            r, c = np.random.randint(low=1, high=25, size=2)
+            A = np.random.randint(low=-10, high=10, size=(r, c))
+            b = np.random.randint(low=-10, high=10, size=(r, 1))
+            Amat = A.tolist()
+            bmat = b.tolist()
+            Ab = np.array(li.augmentMatrix(Amat, bmat))
+            ab = np.hstack((A, b))
+            self.assertTrue(A.tolist() == Amat, "Matrix A shouldn't be modified")
+            self.assertEqual(Ab.shape, ab.shape,
+                             'Wrong answer, expected shape{}, but got shape{}'.format(ab.shape, Ab.shape))
+            self.assertTrue((Ab == ab).all(), 'Wrong answer')
+
+    def test_swapRows(self):
+        for _ in range(10):
+            r, c = np.random.randint(low=1, high=25, size=2)
+            matrix = np.random.random((r, c))
+            mat = matrix.tolist()
+            r1, r2 = np.random.randint(0, r, size=2)
+            li.swapRows(mat, r1, r2)
+            matrix[[r1, r2]] = matrix[[r2, r1]]
+            self.assertTrue((matrix == np.array(mat)).all(), 'Wrong answer')
+
+    def test_scaleRow(self):
+
+        for _ in range(10):
+            r, c = np.random.randint(low=1, high=25, size=2)
+            matrix = np.random.random((r, c))
+
+            mat = matrix.tolist()
+
+            rr = np.random.randint(0, r)
+            with self.assertRaises(ValueError):
+                li.scaleRow(mat, rr, 0)
+
+            scale = np.random.randint(low=1, high=10)
+            li.scaleRow(mat, rr, scale)
+            matrix[rr] *= scale
+
+            self.assertTrue((matrix == np.array(mat)).all(), 'Wrong answer')
+
+    def test_addScaledRow(self):
+
+        for _ in range(10):
+            r, c = np.random.randint(low=1, high=25, size=2)
+            matrix = np.random.random((r, c))
+
+            mat = matrix.tolist()
+
+            r1, r2 = np.random.randint(0, r, size=2)
+
+            scale = np.random.randint(low=1, high=10)
+            li.addScaledRow(mat, r1, r2, scale)
+            matrix[r1] += scale * matrix[r2]
+
+            self.assertTrue((matrix == np.array(mat)).all(), 'Wrong answer')
             #
             # def test_gj_Solve(self):
             #

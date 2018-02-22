@@ -24,7 +24,10 @@ class Plane(object):
 
         if not constant_term:
             constant_term = Decimal('0')
-        self.constant_term = Decimal(constant_term)
+        if type(constant_term)!=list:
+            self.constant_term = Decimal(constant_term)
+        else:
+            self.constant_term = Decimal(constant_term[0])
 
         self.set_basepoint()
 
@@ -47,49 +50,13 @@ class Plane(object):
                 raise 'traceback.format_exc():\n%s' % traceback.format_exc()
 
     def __str__(self):
-
-        num_decimal_places = 3
-
-        def write_coefficient(coefficient, is_initial_term=False):
-            coefficient = round(coefficient, num_decimal_places)
-            if coefficient % 1 == 0:
-                coefficient = int(coefficient)
-
-            print_output = ''
-
-            if coefficient < 0:
-                print_output += '-'
-            if coefficient > 0 and not is_initial_term:
-                print_output += '+'
-
-            if not is_initial_term:
-                print_output += ' '
-
-            if abs(coefficient) != 1:
-                print_output += '{}'.format(abs(coefficient))
-
-            return print_output
-
-        vector_normal = self.normal_vector
-
-        try:
-            initial_index = Plane.first_nonzero_index(vector_normal)
-            terms = [write_coefficient(vector_normal[i], is_initial_term=(i == initial_index)) + 'x_{}'.format(i + 1)
-                     for i in range(self.dimension) if round(vector_normal[i], num_decimal_places) != 0]
-            output = ' '.join(terms)
-
-        except Exception as e:
-            if str(e) == self.NO_NONZERO_ELTS_FOUND_MSG:
-                output = '0'
-            else:
-                raise 'traceback.format_exc():\n%s' % traceback.format_exc()
-
-        constant = round(self.constant_term, num_decimal_places)
-        if constant % 1 == 0:
-            constant = int(constant)
-        output += ' = {}'.format(constant)
-
+        output=[]
+        for i in self.normal_vector:
+            output.append(i)
+        output.append(self.constant_term)
         return output
+
+
 
     @staticmethod
     def first_nonzero_index(iterable):
