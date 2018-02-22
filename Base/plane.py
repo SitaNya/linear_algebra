@@ -10,8 +10,11 @@ getcontext().prec = 30
 class Plane(object):
     NO_NONZERO_ELTS_FOUND_MSG = 'No nonzero elements found'
     NO_NONZERO_TO_EQ = '\'NoneType\' object has no attribute \'minus\''
+    basepoint_difference = None
+    vector_normal = None
 
     def __init__(self, normal_vector=None, constant_term=None):
+        self.basepoint = None
         self.dimension = 3
 
         if not normal_vector:
@@ -26,21 +29,20 @@ class Plane(object):
         self.set_basepoint()
 
     def set_basepoint(self):
-        global basepoint_coords
         try:
-            n = self.normal_vector
-            c = self.constant_term
+            vector_normal = self.normal_vector
+            vector_constant = self.constant_term
             basepoint_coords = ['0'] * self.dimension
 
-            initial_index = Plane.first_nonzero_index(n)
-            initial_coefficient = n[initial_index]
+            initial_index = Plane.first_nonzero_index(vector_normal)
+            initial_coefficient = vector_normal[initial_index]
 
-            basepoint_coords[initial_index] = c / initial_coefficient
+            basepoint_coords[initial_index] = vector_constant / initial_coefficient
             self.basepoint = Vector(basepoint_coords)
 
         except Exception as e:
             if str(e) == Plane.NO_NONZERO_ELTS_FOUND_MSG:
-                self.basepoint = None
+                pass
             else:
                 raise 'traceback.format_exc():\n%s' % traceback.format_exc()
 
@@ -53,27 +55,27 @@ class Plane(object):
             if coefficient % 1 == 0:
                 coefficient = int(coefficient)
 
-            output = ''
+            print_output = ''
 
             if coefficient < 0:
-                output += '-'
+                print_output += '-'
             if coefficient > 0 and not is_initial_term:
-                output += '+'
+                print_output += '+'
 
             if not is_initial_term:
-                output += ' '
+                print_output += ' '
 
             if abs(coefficient) != 1:
-                output += '{}'.format(abs(coefficient))
+                print_output += '{}'.format(abs(coefficient))
 
-            return output
+            return print_output
 
-        n = self.normal_vector
+        vector_normal = self.normal_vector
 
         try:
-            initial_index = Plane.first_nonzero_index(n)
-            terms = [write_coefficient(n[i], is_initial_term=(i == initial_index)) + 'x_{}'.format(i + 1)
-                     for i in range(self.dimension) if round(n[i], num_decimal_places) != 0]
+            initial_index = Plane.first_nonzero_index(vector_normal)
+            terms = [write_coefficient(vector_normal[i], is_initial_term=(i == initial_index)) + 'x_{}'.format(i + 1)
+                     for i in range(self.dimension) if round(vector_normal[i], num_decimal_places) != 0]
             output = ' '.join(terms)
 
         except Exception as e:
@@ -104,13 +106,13 @@ class Plane(object):
 
     def intersection_with(self, ell):
         try:
-            A, B = self.normal_vector.coordinates
-            C, D = ell.normal_vector.coordinates
+            a, b = self.normal_vector.coordinates
+            c, d = ell.normal_vector.coordinates
             k1 = self.constant_term
             k2 = ell.constant_term
-            x_numerator = D * k1 - B * k2
-            y_numerator = -C * k1 + A * k2
-            one_over_denom = Decimal('1') / (A * D - B * C)
+            x_numerator = d * k1 - b * k2
+            y_numerator = -c * k1 + a * k2
+            one_over_denom = Decimal('1') / (a * d - b * c)
 
             return Vector([x_numerator, y_numerator]).times_scaler(one_over_denom)
 
@@ -121,7 +123,7 @@ class Plane(object):
                 return None
 
     def __eq__(self, ell):
-        global basepoint_difference, n
+        global basepoint_difference
         if not self.is_parallel_to(ell):
             return False
         x0 = self.basepoint
@@ -132,12 +134,11 @@ class Plane(object):
         # self.basepoint = Vector(basepoint_coords)，这里的basepoint_coords已经被初始化[0,0,0……]而未被赋予别的值
         try:
             basepoint_difference = x0.minus(y0)
-            n = self.normal_vector
-            return basepoint_difference.is_orthogonal_to(n)
+            return basepoint_difference.is_orthogonal_to(self.normal_vector)
         except Exception as e:
             if str(e) == Plane.NO_NONZERO_TO_EQ:
                 print '被除数为0'
-                return basepoint_difference.is_orthogonal_to(n)
+                return basepoint_difference.is_orthogonal_to(self.normal_vector)
 
 
 class MyDecimal(Decimal):

@@ -1,9 +1,9 @@
 # coding=utf-8
 import sys
-
-sys.path.append('../')
 from Base.Vector import Vector
 from Base.matrix import matrix
+
+sys.path.append('../')
 
 v1 = Vector([0.9353123, 1.76123123, -9.3655345, -9.16285467])
 v2 = Vector([5.73456236, 6.7345635, 7.623452525, 8.6234551565])
