@@ -13,12 +13,15 @@ class matrix(object):
     INF_SOLUTIONS_MSG = 'Infinitely many solutions'
 
     def __init__(self, vector):
+        matrix_list = []
+        for i in vector:
+            matrix_list.append(Vector(i))
         try:
-            d = vector[0].dimension
-            for v in vector:
+            d = matrix_list[0].dimension
+            for v in matrix_list:
                 assert v.dimension == d
 
-            self.Vector = vector
+            self.Vector = matrix_list
             self.dimension = d
 
         except AssertionError:
@@ -44,35 +47,48 @@ class matrix(object):
         ret += '\n'.join(temp)
         return ret
 
-    def shape(self):
-        m_len = self.__len__()
-        m_dimensiou = self.dimension
-        temp = ['Len is: {},col_num is: {}'.format(m_len, m_dimensiou)]
-        return "\nMatrix size is:\n" + str(temp)
+    @staticmethod
+    def shape(M):
+        if type(M) == list:
+            M = matrix(M)
+        m_len = M.__len__()
+        m_dimensiou = M.dimension
+        # temp = ['Len is: {},col_num is: {}'.format(m_len, m_dimensiou)]
+        # return "\nMatrix size is:\n" + str(temp)
+        return m_len, m_dimensiou
 
-    def matxround(self, dec_pts=4):
-        for Vector_index, vector in enumerate(self.Vector):
-            temp_vector = []
+    @staticmethod
+    def matxRound(M, dec_pts=4):
+        for Vector_index, vector in enumerate(M):
             for number_index, number in enumerate(vector):
-                temp_vector.append(round(number, dec_pts))
-            self[Vector_index] = Vector(temp_vector)
+                M[Vector_index][number_index] = (round(number, dec_pts))
 
-    def transpose(self):
-        system = deepcopy(self)
+    @staticmethod
+    def transpose(M):
+        ma = matrix(M)
+        result_matrix_list = []
         vector_index = 0
-        for number_index in range(0, self.dimension):
+        for number_index in range(0, ma.dimension):
             temp_vector = []
-            for Vector_number, vector in enumerate(self.Vector):
+            for Vector_number, vector in enumerate(ma.Vector):
                 temp_vector.append(vector[number_index])
-            system[vector_index] = Vector(temp_vector)
+            result_matrix_list.append(temp_vector)
             vector_index += 1
-        return system
+        return result_matrix_list
 
-    def matxmultiply(self, b):
-        system = deepcopy(self)
-        for Vector_index, vector in enumerate(self.Vector):
-            temp_vector = []
-            for number_index, number in enumerate(vector):
-                temp_vector.append(number * b)
-            system[Vector_index] = Vector(temp_vector)
-        return system
+    @staticmethod
+    def matxMultiply(A, B):
+        try:
+            if B.__len__() != A[0].__len__():
+                raise ValueError(1)
+            ma1 = matrix(A)
+            ma2 = matrix(matrix.transpose(B))
+            result_matrix_list=[]
+            for ma1_index, ma1_vector in enumerate(ma1.Vector):
+                temp_vector = []
+                for ma2_index, ma2_vector in enumerate(ma2.Vector):
+                    temp_vector.append(ma1_vector.dot(ma2_vector))
+                result_matrix_list.append(temp_vector)
+            return result_matrix_list
+        except ValueError as e:
+            raise e
