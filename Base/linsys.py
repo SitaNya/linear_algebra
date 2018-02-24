@@ -120,7 +120,7 @@ class LinearSystem(object):
         for k in range(row + 1, num_equations):
             n = self[k].normal_vector
             gamma = n[col]
-            alpha = -gamma / beta
+            alpha = -Decimal(gamma) / beta
             self.add_multiple_times_row_to_row(alpha, row, k)
 
     def compute_rref(self):
@@ -139,24 +139,20 @@ class LinearSystem(object):
 
     def scale_row_to_make_coefficient_equal_one(self, row, col):
         n = self[row].normal_vector
-        beta = Decimal('1.0') / n[col]
+        beta = Decimal('1.0') / Decimal(n[col])
         self.multiply_coefficient_and_row(beta, row)
 
     def clear_coefficients_above(self, row, col):
         for k in range(row)[::-1]:
             n = self[k].normal_vector
-            alpha = -n[col]
+            alpha = -Decimal(n[col])
             self.add_multiple_times_row_to_row(alpha, row, k)
 
     def compute_solution(self):
-        try:
+
             # return self.do_gaussian_elimination_and_extract_solution()
             return self.do_gaussian_elimination_and_parametrize_solution()
-        except Exception as e:
-            if str(e) == self.NO_SOLUTIONS_MSG:
-                return str(e)
-            else:
-                raise e
+
 
     def do_gaussian_elimination_and_extract_solution(self):
         rref = self.compute_rref()
@@ -237,7 +233,7 @@ class LinearSystem(object):
         A_copy = deepcopy(A)
         augmentMatrix_list = []
         try:
-            if A.__len__() == b.__len__():
+            if A.__len__() != b.__len__():
                 raise Exception
             for v, r in zip(A_copy, b):
                 v.append(r[0])
@@ -260,7 +256,7 @@ class LinearSystem(object):
                 raise ValueError(1)
             for col_num in range(0, M[r].__len__()):
                 M[r][col_num] = M[r][col_num] * scale
-            return M
+                return M
         except ValueError as e:
             raise e
 
@@ -274,6 +270,23 @@ class LinearSystem(object):
             return M
         except ValueError as e:
             raise e
+
+    """ Gaussian Jordan 方法求解 Ax = b.
+        参数
+            A: 方阵 
+            b: 列向量
+            decPts: 四舍五入位数，默认为4
+            epsilon: 判读是否为0的阈值，默认 1.0e-16
+
+        返回列向量 x 使得 Ax = b 
+        返回None，如果 A，b 高度不同
+        返回None，如果 A 为奇异矩阵
+    """
+
+    def gj_Solve(A, b, decPts=4, epsilon=1.0e-16):
+        if A.__len__() != b.__len__():
+            return None
+
 
 
 class MyDecimal(Decimal):

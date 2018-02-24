@@ -27,4 +27,3 @@ def generatePoints(seed,num=100):
     y += np.random.normal(size=num)
 
     return x.tolist(),y.tolist()
-

@@ -40,22 +40,59 @@ class Plane(object):
             initial_index = Plane.first_nonzero_index(vector_normal)
             initial_coefficient = vector_normal[initial_index]
 
-            basepoint_coords[initial_index] = vector_constant / initial_coefficient
+            basepoint_coords[initial_index] = vector_constant / Decimal(initial_coefficient)
             self.basepoint = Vector(basepoint_coords)
 
         except Exception as e:
             if str(e) == Plane.NO_NONZERO_ELTS_FOUND_MSG:
                 pass
             else:
-                raise 'traceback.format_exc():\n%s' % traceback.format_exc()
+                raise e
 
     def __str__(self):
-        output=[]
-        for i in self.normal_vector:
-            output.append(i)
-        output.append(self.constant_term)
-        return output
 
+        num_decimal_places = 3
+
+        def write_coefficient(coefficient, is_initial_term=False):
+            coefficient = round(coefficient, num_decimal_places)
+            if coefficient % 1 == 0:
+                coefficient = int(coefficient)
+
+            output = ''
+
+            if coefficient < 0:
+                output += '-'
+            if coefficient > 0 and not is_initial_term:
+                output += '+'
+
+            if not is_initial_term:
+                output += ' '
+
+            if abs(coefficient) != 1:
+                output += '{}'.format(abs(coefficient))
+
+            return output
+
+        n = self.normal_vector
+
+        try:
+            initial_index = Plane.first_nonzero_index(n)
+            terms = [write_coefficient(n[i], is_initial_term=(i == initial_index)) + 'x_{}'.format(i + 1)
+                     for i in range(self.dimension) if round(n[i], num_decimal_places) != 0]
+            output = ' '.join(terms)
+
+        except Exception as e:
+            if str(e) == self.NO_NONZERO_ELTS_FOUND_MSG:
+                output = '0'
+            else:
+                raise 'traceback.format_exc():\n%s' % traceback.format_exc()
+
+        constant = round(self.constant_term, num_decimal_places)
+        if constant % 1 == 0:
+            constant = int(constant)
+        output += ' = {}'.format(constant)
+
+        return output
 
 
     @staticmethod

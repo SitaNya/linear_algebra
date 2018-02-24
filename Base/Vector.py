@@ -36,7 +36,7 @@ class Vector(object):
         向量相加，每个向量之间相加
         :rtype: Vector
         """
-        new_coordinates = [x + y for x, y in zip(self.coordinates, v.coordinates)]
+        new_coordinates = [Decimal(x) + Decimal(y) for x, y in zip(self.coordinates, v.coordinates)]
         return Vector(new_coordinates)
 
     def minus(self, v):
@@ -54,7 +54,7 @@ class Vector(object):
         :param c: 延长c倍
         :return: 返回被延长后的向量
         """
-        new_coordinates = [Decimal(c) * x for x in self.coordinates]
+        new_coordinates = [Decimal(c) * Decimal(x) for x in self.coordinates]
         return Vector(new_coordinates)
 
     def magnitude(self):
