@@ -4,6 +4,7 @@ import unittest
 from decimal import *
 from Base.linsys import LinearSystem as li
 from Base.matrix import matrix as ma
+from Base.Vector import Vector as ve
 import numpy as np
 
 getcontext().prec = 30
@@ -140,12 +141,14 @@ class LinearRegressionTestCase(unittest.TestCase):
             if np.linalg.matrix_rank(A) < r:
                 self.assertEqual(x, None, "Matrix A is singular")
             else:
-                self.assertNotEqual(x, None, "Matrix A is not singular")
+                self.assertNotEqual(x, None, "Matrix A is not singular"+str(x))
                 self.assertEqual(np.array(x).shape, (r, 1),
                                  "Expected shape({},1), but got shape{}".format(r, np.array(x).shape))
                 Ax = np.dot(A, np.array(x))
                 loss = np.mean((Ax - b) ** 2)
-                self.assertTrue(loss < 0.1, "Bad result.")
+                self.assertTrue(loss < 0.1, "Bad result."+str(Ax)+"\n"+str(loss))
+
+
 
 
 if __name__ == '__main__':

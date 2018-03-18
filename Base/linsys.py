@@ -4,8 +4,10 @@ from decimal import Decimal, getcontext
 
 from copy import deepcopy
 
+from Base.matrix import matrix as ma
 from Vector import Vector
 from plane import Plane
+import numpy
 
 getcontext().prec = 30
 
@@ -150,9 +152,8 @@ class LinearSystem(object):
 
     def compute_solution(self):
 
-            # return self.do_gaussian_elimination_and_extract_solution()
-            return self.do_gaussian_elimination_and_parametrize_solution()
-
+        # return self.do_gaussian_elimination_and_extract_solution()
+        return self.do_gaussian_elimination_and_parametrize_solution()
 
     def do_gaussian_elimination_and_extract_solution(self):
         rref = self.compute_rref()
@@ -172,8 +173,6 @@ class LinearSystem(object):
 
         direction_vectors = rref.extract_direction_vectors_for_parametrization()
         basepoint = rref.extract_base_point_for_paramerization()
-        print basepoint
-        print direction_vectors
         # return Parametrization(basepoint,direction_vectors)
 
     def extract_direction_vectors_for_parametrization(self):
@@ -256,7 +255,7 @@ class LinearSystem(object):
                 raise ValueError(1)
             for col_num in range(0, M[r].__len__()):
                 M[r][col_num] = M[r][col_num] * scale
-                return M
+            return M
         except ValueError as e:
             raise e
 
@@ -271,6 +270,11 @@ class LinearSystem(object):
         except ValueError as e:
             raise e
 
+    def matxRound(matx, decPts=4):
+        for col in range(len(matx)):
+            for row in range(len(matx[0])):
+                matx[col][row] = round(matx[col][row], decPts)
+
     """ Gaussian Jordan 方法求解 Ax = b.
         参数
             A: 方阵 
@@ -283,12 +287,79 @@ class LinearSystem(object):
         返回None，如果 A 为奇异矩阵
     """
 
-    def gj_Solve(A, b, decPts=4, epsilon=1.0e-16):
+    @staticmethod
+    def gj_Solve(A, b, epsilon=1.0e-16, decPts=4):
         if A.__len__() != b.__len__():
             return None
+        m = LinearSystem.augmentMatrix(A, b)
+        (eqns, colrange, augCol) = (len(A), len(A), len(m[0]))
 
+        for col in range(0, colrange):
+            bigrow = col
+            for row in range(col + 1, colrange):
+                if abs(m[row][col]) > abs(m[bigrow][col]):
+                    bigrow = row
+                    (m[col], m[bigrow]) = (m[bigrow], m[col])
+        print "原" + str(numpy.array(m))
+        # 排序
+
+        try:
+            for rrcol in range(0, colrange):
+                for rr in range(rrcol + 1, eqns):
+                    if m[rrcol][rrcol] != 0.0:
+                        cc = -(float(m[rr][rrcol]) / float(m[rrcol][rrcol]))
+                        for j in range(augCol):
+                            m[rr][j] = m[rr][j] + cc * m[rrcol][j]
+                    else:
+                        cache = m[rrcol]
+                        m[rrcol] = m[colrange]
+                        m[colrange] = cache
+                        cc = -(float(m[rr][rrcol]) / float(m[rrcol][rrcol]))
+                        for j in range(augCol):
+                            m[rr][j] = m[rr][j] + cc * m[rrcol][j]
+
+        except Exception as e:
+            print m[rrcol][rrcol]
+            print numpy.array(m)
+            print rrcol
+        # 化简
+
+        for rb in reversed(range(eqns)):
+            if (m[rb][rb] == 0):
+                if m[rb][augCol - 1] == 0:
+                    continue
+                else:
+                    return None
+            else:
+                # you must loop back across to catch under-determined systems
+                for backCol in reversed(range(rb, augCol)):
+                    m[rb][backCol] = float(m[rb][backCol]) / float(m[rb][rb])
+                # knock-up (cancel the above to eliminate the knowns)
+                # again, we must loop to catch under-determined systems
+                if not (rb == 0):
+                    for kup in reversed(range(rb)):
+                        for kleft in reversed(range(rb, augCol)):
+                            kk = -float(m[kup][rb]) / float(m[rb][rb])
+                            m[kup][kleft] += kk * float(m[rb][kleft])
+
+        ma.matxRound(m, decPts)
+        print "现" + str(numpy.array(m))
+
+        for row in range(0, colrange):
+            b[row] = [m[row][augCol - 1]]
+        return b
 
 
 class MyDecimal(Decimal):
     def is_near_zero(self, eps=1e-10):
         return abs(self) < eps
+
+
+if __name__ == '__main__':
+    A = [[3, 1, -1, 0]
+        , [0, -6, 6, 7]
+        , [-3, -6, 6, 2]
+        , [1, 5, 3, -4]]
+    b=[[2],[0],[1],[3]]
+
+x = LinearSystem.gj_Solve(A, b, epsilon=1.0e-8)
